@@ -3,19 +3,172 @@
 {% block title %}All Meetings{% endblock %}
 
 {% block content %}
-<div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">All Meetings</h1>
-    <ul class="space-y-4">
-        {% for meeting in meetings %}
-            <li class="p-4 bg-gray-50 rounded-md border border-gray-200">
-                <a href="{% url 'meeting_detail' meeting.pk %}" class="hover:text-blue-600">
-    <p class="text-lg font-semibold text-gray-700">{{ meeting.title }}</p>
-</a>
-                <p class="text-sm text-gray-500">{{ meeting.meeting_date }}</p>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">All Meetings</h1>
+                <p class="text-gray-500 mt-2">Track and manage all your team meetings</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">
+                    {{ meetings|length }} meeting{{ meetings|length|pluralize }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-blue-100 p-3 mr-4">
+                        <i class="fa-solid fa-calendar-day text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Upcoming</p>
+                        <p class="text-xl font-semibold text-gray-900">
+                            {{ meetings|length }} meeting{{ meetings|length|pluralize }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-green-100 p-3 mr-4">
+                        <i class="fa-solid fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Completed</p>
+                        <p class="text-xl font-semibold text-gray-900">0 meetings</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-purple-100 p-3 mr-4">
+                        <i class="fa-solid fa-clock text-purple-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Avg. Duration</p>
+                        <p class="text-xl font-semibold text-gray-900">60 min</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meetings List -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <!-- List Header -->
+        <div class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <div class="flex items-center">
+                <div class="w-7/12">Meeting Details</div>
+                <div class="w-3/12">Date & Time</div>
+                <div class="w-2/12 text-right">Actions</div>
+            </div>
+        </div>
+        
+        <!-- Meetings -->
+        <ul class="divide-y divide-gray-200">
+            {% for meeting in meetings %}
+            <li class="transition-colors hover:bg-gray-50">
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="w-7/12">
+                            <a href="{% url 'meeting_detail' meeting.pk %}" class="group block">
+                                <p class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                    {{ meeting.title }}
+                                </p>
+                                <div class="flex items-center mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                        <i class="fa-solid fa-tasks mr-1"></i> {{ meeting.tasks.all|length }} tasks
+                                    </span>
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fa-solid fa-users mr-1"></i> 5 participants
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="w-3/12">
+                            <div class="flex items-center">
+                                <i class="fa-regular fa-calendar text-gray-400 mr-2"></i>
+                                <span class="text-sm text-gray-600">{{ meeting.meeting_date|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="flex items-center mt-1">
+                                <i class="fa-regular fa-clock text-gray-400 mr-2"></i>
+                                <span class="text-sm text-gray-600">2:00 PM - 3:00 PM</span>
+                            </div>
+                        </div>
+                        <div class="w-2/12 flex justify-end space-x-2">
+                            <a href="{% url 'meeting_detail' meeting.pk %}" class="text-indigo-600 hover:text-indigo-900 p-2 rounded-md hover:bg-indigo-50 transition-colors" title="View Meeting">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <a href="#" class="text-gray-600 hover:text-gray-900 p-2 rounded-md hover:bg-gray-100 transition-colors" title="Edit Meeting">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </li>
-        {% empty %}
-            <li class="text-gray-500">No meetings found.</li>
-        {% endfor %}
-    </ul>
+            {% empty %}
+            <li class="px-6 py-12 text-center">
+                <div class="mx-auto flex justify-center">
+                    <i class="fa-regular fa-calendar-xmark text-4xl text-gray-300"></i>
+                </div>
+                <h3 class="mt-4 text-sm font-medium text-gray-900">No meetings</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by creating a new meeting.</p>
+                <div class="mt-6">
+                    <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fa-solid fa-plus -ml-1 mr-2"></i> New Meeting
+                    </a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Pagination (if needed) -->
+    {% if meetings.has_other_pages %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-8 rounded-lg shadow-sm">
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing <span class="font-medium">{{ meetings.start_index }}</span> to <span class="font-medium">{{ meetings.end_index }}</span> of <span class="font-medium">{{ meetings.paginator.count }}</span> results
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if meetings.has_previous %}
+                    <a href="?page={{ meetings.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Previous</span>
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for i in meetings.paginator.page_range %}
+                    <a href="?page={{ i }}" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium {% if meetings.number == i %}z-10 bg-indigo-50 border-indigo-500 text-indigo-600{% else %}bg-white border-gray-300 text-gray-500 hover:bg-gray-50{% endif %}">
+                        {{ i }}
+                    </a>
+                    {% endfor %}
+                    
+                    {% if meetings.has_next %}
+                    <a href="?page={{ meetings.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Next</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<style>
+    .fa-solid, .fa-regular {
+        width: 1em;
+        text-align: center;
+    }
+</style>
 {% endblock %}
