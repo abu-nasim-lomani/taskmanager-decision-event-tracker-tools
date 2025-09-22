@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'core',
+    'tailwind',
+    'theme',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +128,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+
+# config/settings.py
+TAILWIND_APP_NAME = 'theme'
+
+# Path for NPM executable
+NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
