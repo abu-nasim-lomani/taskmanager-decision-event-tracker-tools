@@ -9,6 +9,42 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from .models import Meeting, Task
 from .forms import MeetingForm, TaskForm
+from accounts.models import User
+from django.db.models import Count, Q
+
+@login_required
+def management_dashboard(request):
+    if not (request.user.is_superuser or request.user.role == 'MANAGEMENT'):
+        raise PermissionDenied
+
+    # Annotate managers with their task counts using Q objects
+    managers = User.objects.filter(role='MANAGER').annotate(
+        total_tasks=Count('task_owned'),
+        completed_tasks=Count('task_owned', filter=Q(task_owned__status=Task.StatusChoices.COMPLETED)),
+        incomplete_tasks=Count('task_owned', filter=~Q(task_owned__status=Task.StatusChoices.COMPLETED))
+    ).order_by('username')
+
+    context = {
+        'managers': managers,
+    }
+    return render(request, 'core/management_dashboard.html', context)
+
+@login_required
+def my_tasks(request):
+    # Get all tasks assigned to the currently logged-in user
+    all_user_tasks = Task.objects.filter(owner=request.user).order_by('due_date')
+    
+    # Separate tasks into incomplete and completed
+    incomplete_tasks = all_user_tasks.exclude(status=Task.StatusChoices.COMPLETED)
+    completed_tasks = all_user_tasks.filter(status=Task.StatusChoices.COMPLETED)
+
+    context = {
+        'incomplete_tasks': incomplete_tasks,
+        'completed_tasks': completed_tasks,
+    }
+    return render(request, 'core/my_tasks.html', context)
+
+
 
 # A helper function to check for manager/admin roles
 def is_manager_or_admin(user):

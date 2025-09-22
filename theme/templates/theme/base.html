@@ -22,32 +22,35 @@
                         </div>
                         <nav class="mt-8 flex-1 px-3 space-y-2">
                              <a href="{% url 'meeting_list' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
-                                <i class="fa-solid fa-gauge-high mr-3 text-slate-400"></i> Dashboard
+                                <i class="fa-solid fa-gauge-high mr-3 text-slate-400 w-6 text-center"></i> Dashboard
                             </a>
-                            <a href="#" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
-                                <i class="fa-solid fa-chart-line mr-3 text-slate-400"></i> Reports
+                            <a href="{% url 'my_tasks' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
+                                <i class="fa-solid fa-tasks mr-3 text-slate-400 w-6 text-center"></i> My Tasks
                             </a>
+                            {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                            <a href="{% url 'management_dashboard' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
+                                <i class="fa-solid fa-users-gear mr-3 text-slate-400 w-6 text-center"></i> Management
+                            </a>
+                            {% endif %}
                         </nav>
                          <div class="px-4 py-4 border-t border-slate-700 mt-auto">
-    {% if user.is_authenticated %}
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center mr-3"><span class="font-bold text-indigo-300">{{ request.user.username|first|upper }}</span></div>
-            <div>
-                <p class="text-sm font-medium text-white">{{ request.user.username|capfirst }}</p>
-                <p class="text-xs font-medium text-slate-400">{{ request.user.get_role_display }}</p>
-            </div>
-        </div>
-        <a href="{% url 'logout' %}" title="Log Out" class="text-slate-400 hover:text-white">
-            <i class="fa-solid fa-right-from-bracket"></i>
-        </a>
-    </div>
-    {% else %}
-        <a href="{% url 'login' %}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
-            <i class="fa-solid fa-right-to-bracket mr-3 text-slate-400"></i> Log In
-        </a>
-    {% endif %}
-</div>
+                            {% if user.is_authenticated %}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center mr-3"><span class="font-bold text-indigo-300">{{ request.user.username|first|upper }}</span></div>
+                                    <div>
+                                        <p class="text-sm font-medium text-white">{{ request.user.username|capfirst }}</p>
+                                        <p class="text-xs font-medium text-slate-400">{{ request.user.get_role_display }}</p>
+                                    </div>
+                                </div>
+                                <a href="{% url 'logout' %}" title="Log Out" class="text-slate-400 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i></a>
+                            </div>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
+                                    <i class="fa-solid fa-right-to-bracket mr-3 text-slate-400"></i> Log In
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 <div class="w-14 flex-shrink-0"></div>
@@ -62,32 +65,35 @@
                 </div>
                 <nav class="mt-8 flex-1 px-3 space-y-2">
                     <a href="{% url 'meeting_list' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
-                        <i class="fa-solid fa-gauge-high mr-3 text-slate-400"></i> Dashboard
+                        <i class="fa-solid fa-gauge-high mr-3 text-slate-400 w-6 text-center"></i> Dashboard
                     </a>
-                     <a href="#" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
-                        <i class="fa-solid fa-chart-line mr-3 text-slate-400"></i> Reports
+                    <a href="{% url 'my_tasks' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
+                        <i class="fa-solid fa-tasks mr-3 text-slate-400 w-6 text-center"></i> My Tasks
                     </a>
+                    {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                    <a href="{% url 'management_dashboard' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
+                        <i class="fa-solid fa-users-gear mr-3 text-slate-400 w-6 text-center"></i> Management
+                    </a>
+                    {% endif %}
                 </nav>
                 <div class="px-4 py-4 border-t border-slate-700 mt-auto">
-    {% if user.is_authenticated %}
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center mr-3"><span class="font-bold text-indigo-300">{{ request.user.username|first|upper }}</span></div>
-            <div>
-                <p class="text-sm font-medium text-white">{{ request.user.username|capfirst }}</p>
-                <p class="text-xs font-medium text-slate-400">{{ request.user.get_role_display }}</p>
-            </div>
-        </div>
-        <a href="{% url 'logout' %}" title="Log Out" class="text-slate-400 hover:text-white">
-            <i class="fa-solid fa-right-from-bracket"></i>
-        </a>
-    </div>
-    {% else %}
-        <a href="{% url 'login' %}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
-            <i class="fa-solid fa-right-to-bracket mr-3 text-slate-400"></i> Log In
-        </a>
-    {% endif %}
-</div>
+                    {% if user.is_authenticated %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center mr-3"><span class="font-bold text-indigo-300">{{ request.user.username|first|upper }}</span></div>
+                            <div>
+                                <p class="text-sm font-medium text-white">{{ request.user.username|capfirst }}</p>
+                                <p class="text-xs font-medium text-slate-400">{{ request.user.get_role_display }}</p>
+                            </div>
+                        </div>
+                        <a href="{% url 'logout' %}" title="Log Out" class="text-slate-400 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i></a>
+                    </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
+                            <i class="fa-solid fa-right-to-bracket mr-3 text-slate-400"></i> Log In
+                        </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -124,12 +130,10 @@
     <div class="lg:hidden fixed bottom-0 left-0 z-40 w-full h-16 bg-white border-t border-gray-200">
         <div class="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
             <a href="{% url 'meeting_list' %}" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
-                <i class="fa-solid fa-gauge-high text-gray-500 group-hover:text-indigo-600"></i>
-                <span class="text-xs text-gray-500 group-hover:text-indigo-600">Dashboard</span>
+                <i class="fa-solid fa-gauge-high text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Dashboard</span>
             </a>
-            <a href="#" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
-                <i class="fa-solid fa-chart-line text-gray-500 group-hover:text-indigo-600"></i>
-                <span class="text-xs text-gray-500 group-hover:text-indigo-600">Reports</span>
+            <a href="{% url 'my_tasks' %}" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
+                <i class="fa-solid fa-tasks text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">My Tasks</span>
             </a>
             <div class="flex items-center justify-center">
                 {% if request.user.is_authenticated %}
@@ -141,13 +145,17 @@
                 {% endif %}
             </div>
             <a href="#" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
-                <i class="fa-regular fa-calendar text-gray-500 group-hover:text-indigo-600"></i>
-                <span class="text-xs text-gray-500 group-hover:text-indigo-600">Calendar</span>
+                <i class="fa-regular fa-calendar text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Calendar</span>
             </a>
-            <a href="#" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
-                <i class="fa-solid fa-gear text-gray-500 group-hover:text-indigo-600"></i>
-                <span class="text-xs text-gray-500 group-hover:text-indigo-600">Settings</span>
+            {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+            <a href="{% url 'management_dashboard' %}" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
+                <i class="fa-solid fa-users-gear text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Management</span>
             </a>
+            {% else %}
+             <a href="#" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
+                <i class="fa-solid fa-gear text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Settings</span>
+            </a>
+            {% endif %}
         </div>
     </div>
     
