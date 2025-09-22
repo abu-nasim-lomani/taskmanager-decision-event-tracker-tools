@@ -139,3 +139,12 @@ NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
+
+
+
+
+
+
+# config/settings.py
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
