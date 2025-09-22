@@ -13,7 +13,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500">Total Meetings</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ meetings.paginator.count }}</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_meetings_count }}</p>
                 </div>
             </div>
         </div>
@@ -22,16 +22,7 @@
                 <div class="rounded-full bg-green-100 p-3 mr-4"><i class="fa-solid fa-check-circle text-green-600 text-xl"></i></div>
                 <div>
                     <p class="text-sm font-medium text-gray-500">Completed</p>
-                    <p class="text-2xl font-semibold text-gray-900">0</p>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <div class="flex items-center">
-                <div class="rounded-full bg-purple-100 p-3 mr-4"><i class="fa-solid fa-hourglass-half text-purple-600 text-xl"></i></div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Avg. Duration</p>
-                    <p class="text-2xl font-semibold text-gray-900">N/A</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ completed_meetings_count }}</p>
                 </div>
             </div>
         </div>
@@ -40,7 +31,18 @@
                 <div class="rounded-full bg-yellow-100 p-3 mr-4"><i class="fa-solid fa-tasks text-yellow-600 text-xl"></i></div>
                 <div>
                     <p class="text-sm font-medium text-gray-500">Total Tasks</p>
-                    <p class="text-2xl font-semibold text-gray-900">0</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_tasks_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+            <div class="flex items-center">
+                <div class="rounded-full bg-purple-100 p-3 mr-4"><i class="fa-solid fa-hourglass-half text-purple-600 text-xl"></i></div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Avg. Duration</p>
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {% if avg_duration %}{{ avg_duration|floatformat:0 }} min{% else %}N/A{% endif %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -57,24 +59,23 @@
         
         <ul class="divide-y divide-gray-200">
             {% for meeting in meetings %}
-            <li class="transition-colors hover:bg-gray-50">
-                <div class="flex items-center justify-between px-6 py-4">
+            <li class="px-6 py-4 transition-colors hover:bg-gray-50">
+                <div class="flex items-center justify-between">
                     <div class="w-7/12">
-                        <a href="{{ meeting.get_absolute_url }}" class="group block">
-                            <p class="text-md font-semibold text-gray-900 group-hover:text-indigo-600">{{ meeting.title }}</p>
-                            <div class="flex items-center mt-1">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                    <i class="fa-solid fa-tasks mr-1.5"></i> {{ meeting.tasks.count }} tasks
-                                </span>
-                            </div>
-                        </a>
+                        <p class="text-md font-semibold text-gray-900">{{ meeting.title }}</p>
+                        <p class="text-sm text-gray-500 mt-1">{{ meeting.tasks.count }} tasks</p>
                     </div>
                     <div class="w-3/12">
                         <span class="text-sm text-gray-600">{{ meeting.meeting_time|date:"F d, Y, P" }}</span>
                     </div>
-                    <div class="w-2/12 flex justify-end items-center space-x-3">
-                        <a href="{% url 'meeting_update' meeting.pk %}" class="text-gray-400 hover:text-indigo-600" title="Edit Meeting"><i class="fa-solid fa-pen-to-square"></i></a>
-                        <form action="{% url 'meeting_delete' meeting.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete this meeting?');">
+                    <div class="w-2/12 flex justify-end items-center space-x-4">
+                        <a href="{% url 'meeting_detail' meeting.pk %}" class="text-gray-400 hover:text-blue-600" title="View Details">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        <a href="{% url 'meeting_update' meeting.pk %}" class="text-gray-400 hover:text-indigo-600" title="Edit Meeting">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <form action="{% url 'meeting_delete' meeting.pk %}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="text-gray-400 hover:text-red-600" title="Delete Meeting"><i class="fa-solid fa-trash-can"></i></button>
                         </form>
@@ -83,7 +84,7 @@
             </li>
             {% empty %}
             <li class="px-6 py-12 text-center">
-                <h3 class="mt-2 text-sm font-medium text-gray-900">No meetings found</h3>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No meetings found.</h3>
                 <p class="mt-1 text-sm text-gray-500">Get started by creating a new meeting.</p>
                 <div class="mt-6">
                     <a href="{% url 'meeting_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">

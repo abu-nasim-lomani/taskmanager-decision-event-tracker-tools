@@ -3,18 +3,41 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
+from django.db.models import Avg
+from django.utils import timezone
 from .models import Meeting, Task
 from .forms import MeetingForm, TaskForm
 
+# =================================
 # Meeting Views
 # =================================
 
 def meeting_list(request):
-    all_meetings = Meeting.objects.all().order_by('-meeting_time')
-    paginator = Paginator(all_meetings, 10)  # Show 10 meetings per page
+    all_meetings = Meeting.objects.all()
+    
+    # Calculate stats before pagination
+    total_meetings_count = all_meetings.count()
+    completed_meetings_count = all_meetings.filter(meeting_time__lt=timezone.now()).count()
+    total_tasks_count = Task.objects.count()
+    
+    # Calculate average duration
+    avg_duration_data = all_meetings.aggregate(avg_duration=Avg('duration'))
+    avg_duration = avg_duration_data.get('avg_duration')
+
+    # Paginate the ordered list of meetings
+    ordered_meetings = all_meetings.order_by('-meeting_time')
+    paginator = Paginator(ordered_meetings, 10)
     page_number = request.GET.get('page')
     meetings_page = paginator.get_page(page_number)
-    return render(request, 'core/meeting_list.html', {'meetings': meetings_page})
+
+    context = {
+        'meetings': meetings_page,
+        'total_meetings_count': total_meetings_count,
+        'completed_meetings_count': completed_meetings_count,
+        'total_tasks_count': total_tasks_count,
+        'avg_duration': avg_duration,
+    }
+    return render(request, 'core/meeting_list.html', context)
 
 def meeting_detail(request, pk):
     meeting = get_object_or_404(Meeting, pk=pk)
@@ -57,6 +80,7 @@ def meeting_delete(request, pk):
     return redirect('meeting_list')
 
 
+# =================================
 # Task Views
 # =================================
 
