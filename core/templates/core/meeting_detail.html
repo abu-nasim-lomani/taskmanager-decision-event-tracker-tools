@@ -1,0 +1,47 @@
+{% extends 'theme/base.html' %}
+
+{% block title %}{{ meeting.title }}{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-4 text-gray-800">{{ meeting.title }}</h1>
+    <p class="text-lg text-gray-600 mb-6">Meeting Date: {{ meeting.meeting_date }}</p>
+
+    <hr class="my-6">
+
+    <h2 class="text-2xl font-bold mb-4 text-gray-700">Tasks for this Meeting</h2>
+    <div class="space-y-4">
+        {% for task in meeting.tasks.all %}
+            <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                <p class="text-lg font-semibold text-gray-700">{{ task.title }}</p>
+                <p class="text-sm text-gray-500">Owner: {{ task.owner.username | default:"Not Assigned" }} | Status: {{ task.status }}</p>
+            </div>
+        {% empty %}
+            <p class="text-gray-500">No tasks have been added to this meeting yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}{% extends 'theme/base.html' %}
+
+{% block title %}{{ meeting.title }}{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-4 text-gray-800">{{ meeting.title }}</h1>
+    <p class="text-lg text-gray-600 mb-6">Meeting Date: {{ meeting.meeting_date }}</p>
+
+    <hr class="my-6">
+
+    <h2 class="text-2xl font-bold mb-4 text-gray-700">Tasks for this Meeting</h2>
+    <div class="space-y-4">
+        {% for task in meeting.tasks.all %}
+            <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                <p class="text-lg font-semibold text-gray-700">{{ task.title }}</p>
+                <p class="text-sm text-gray-500">Owner: {{ task.owner.username | default:"Not Assigned" }} | Status: {{ task.status }}</p>
+            </div>
+        {% empty %}
+            <p class="text-gray-500">No tasks have been added to this meeting yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

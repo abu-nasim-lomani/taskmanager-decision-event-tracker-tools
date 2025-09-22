@@ -8,7 +8,9 @@
     <ul class="space-y-4">
         {% for meeting in meetings %}
             <li class="p-4 bg-gray-50 rounded-md border border-gray-200">
-                <p class="text-lg font-semibold text-gray-700">{{ meeting.title }}</p>
+                <a href="{% url 'meeting_detail' meeting.pk %}" class="hover:text-blue-600">
+    <p class="text-lg font-semibold text-gray-700">{{ meeting.title }}</p>
+</a>
                 <p class="text-sm text-gray-500">{{ meeting.meeting_date }}</p>
             </li>
         {% empty %}
