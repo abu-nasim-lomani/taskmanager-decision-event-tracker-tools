@@ -1,16 +1,30 @@
 # core/models.py
 
 from django.db import models
+from django.utils import timezone
+from django.urls import reverse
 from django.conf import settings
 
 class Meeting(models.Model):
+    class MeetingType(models.TextChoices):
+        TEAM = "TEAM", "Team"
+        PROJECT = "PROJECT", "Project"
+        BRAINSTORM = "BRAINSTORM", "Brainstorm"
+        REVIEW = "REVIEW", "Review"
+
     title = models.CharField(max_length=200)
-    meeting_date = models.DateField()
+    meeting_time = models.DateTimeField(default=timezone.now)
+    duration = models.IntegerField(default=60, help_text="Duration in minutes")
+    meeting_type = models.CharField(max_length=20, choices=MeetingType.choices, default=MeetingType.TEAM)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title} on {self.meeting_date}"
+        return f"{self.title} on {self.meeting_time.strftime('%b %d, %Y at %I:%M %p')}"
+    
+    def get_absolute_url(self):
+        return reverse('meeting_detail', kwargs={'pk': self.pk})
 
 class Task(models.Model):
     class StatusChoices(models.TextChoices):

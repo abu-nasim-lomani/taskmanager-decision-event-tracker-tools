@@ -1,30 +1,23 @@
 # core/views.py
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
-from .models import Meeting
-from .forms import TaskForm
-from .models import Meeting, Task 
+from django.core.paginator import Paginator
+from .models import Meeting, Task
+from .forms import MeetingForm, TaskForm
+
+# Meeting Views
+# =================================
 
 def meeting_list(request):
-    meetings = Meeting.objects.all().order_by('-meeting_date')
-    context = {
-        'meetings': meetings
-    }
-    return render(request, 'core/meeting_list.html', context)
-
-
-def meeting_detail(request, pk):
-    meeting = get_object_or_404(Meeting, pk=pk)
-    context = {
-        'meeting': meeting
-    }
-    return render(request, 'core/meeting_detail.html', context)
-
-
+    all_meetings = Meeting.objects.all().order_by('-meeting_time')
+    paginator = Paginator(all_meetings, 10)  # Show 10 meetings per page
+    page_number = request.GET.get('page')
+    meetings_page = paginator.get_page(page_number)
+    return render(request, 'core/meeting_list.html', {'meetings': meetings_page})
 
 def meeting_detail(request, pk):
     meeting = get_object_or_404(Meeting, pk=pk)
-    
     if request.method == 'POST':
         form = TaskForm(request.POST)
         if form.is_valid():
@@ -34,14 +27,38 @@ def meeting_detail(request, pk):
             return redirect('meeting_detail', pk=meeting.pk)
     else:
         form = TaskForm()
+    return render(request, 'core/meeting_detail.html', {'meeting': meeting, 'form': form})
 
-    context = {
-        'meeting': meeting,
-        'form': form,
-    }
-    return render(request, 'core/meeting_detail.html', context)
+def meeting_create(request):
+    if request.method == 'POST':
+        form = MeetingForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('meeting_list')
+    else:
+        form = MeetingForm()
+    return render(request, 'core/meeting_form.html', {'form': form})
+
+def meeting_update(request, pk):
+    meeting = get_object_or_404(Meeting, pk=pk)
+    if request.method == 'POST':
+        form = MeetingForm(request.POST, instance=meeting)
+        if form.is_valid():
+            form.save()
+            return redirect('meeting_list')
+    else:
+        form = MeetingForm(instance=meeting)
+    return render(request, 'core/meeting_form.html', {'form': form, 'meeting': meeting})
+
+@require_POST
+def meeting_delete(request, pk):
+    meeting = get_object_or_404(Meeting, pk=pk)
+    meeting.delete()
+    return redirect('meeting_list')
 
 
+# Task Views
+# =================================
 
 def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk)
@@ -52,13 +69,7 @@ def task_update(request, pk):
             return redirect('meeting_detail', pk=task.meeting.pk)
     else:
         form = TaskForm(instance=task)
-    
-    context = {
-        'form': form,
-        'task': task
-    }
-    return render(request, 'core/task_update.html', context)
-
+    return render(request, 'core/task_update.html', {'form': form, 'task': task})
 
 @require_POST
 def task_delete(request, pk):

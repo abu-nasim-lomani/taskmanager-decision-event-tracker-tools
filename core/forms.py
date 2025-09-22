@@ -1,7 +1,48 @@
 # core/forms.py
 
 from django import forms
-from .models import Task
+from .models import Meeting, Task
+from accounts.models import User
+
+class MeetingForm(forms.ModelForm):
+    DURATION_CHOICES = [
+        (30, '30 minutes'),
+        (60, '60 minutes'),
+        (90, '90 minutes'),
+        (120, '120 minutes'),
+    ]
+    
+    duration = forms.ChoiceField(
+        choices=DURATION_CHOICES, 
+        widget=forms.Select(attrs={
+            'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        })
+    )
+
+    class Meta:
+        model = Meeting
+        fields = ['title', 'meeting_time', 'duration', 'meeting_type']
+        
+        labels = {
+            'title': 'Meeting Title',
+            'meeting_time': 'Date & Time',
+            'duration': 'Duration',
+            'meeting_type': 'Meeting Type',
+        }
+
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+            }),
+            'meeting_time': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+            }),
+            'meeting_type': forms.RadioSelect(attrs={
+                'class': 'sr-only peer' # Class for the custom radio buttons in the template
+            }),
+        }
+
 
 class TaskForm(forms.ModelForm):
     class Meta:

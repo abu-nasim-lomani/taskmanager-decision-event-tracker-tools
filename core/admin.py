@@ -5,7 +5,7 @@ from .models import Meeting, Task
 
 @admin.register(Meeting)
 class MeetingAdmin(admin.ModelAdmin):
-    list_display = ('title', 'meeting_date', 'created_at')
+    list_display = ('title', 'meeting_time', 'created_at')
     search_fields = ('title',)
 
 @admin.register(Task)
