@@ -12,10 +12,15 @@ class Meeting(models.Model):
         BRAINSTORM = "BRAINSTORM", "Brainstorm"
         REVIEW = "REVIEW", "Review"
 
+    class MeetingStatus(models.TextChoices):
+        UPCOMING = "UPCOMING", "Upcoming"
+        COMPLETED = "COMPLETED", "Completed"
+
     title = models.CharField(max_length=200)
     meeting_time = models.DateTimeField(default=timezone.now)
     duration = models.IntegerField(default=60, help_text="Duration in minutes")
     meeting_type = models.CharField(max_length=20, choices=MeetingType.choices, default=MeetingType.TEAM)
+    status = models.CharField(max_length=20, choices=MeetingStatus.choices, default=MeetingStatus.UPCOMING) # <-- এই ফিল্ডটি যোগ করা হয়েছে
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -46,7 +51,7 @@ class Task(models.Model):
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 
-        related_name='task_owned' # <-- এই অংশটি যোগ করা হয়েছে
+        related_name='task_owned'
     )
     due_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.PENDING)
