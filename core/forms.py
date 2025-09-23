@@ -1,5 +1,3 @@
-# core/forms.py
-
 from django import forms
 from .models import Meeting, Task
 from accounts.models import User
@@ -21,13 +19,14 @@ class MeetingForm(forms.ModelForm):
 
     class Meta:
         model = Meeting
-        fields = ['title', 'meeting_time', 'duration', 'meeting_type']
+        fields = ['title', 'meeting_time', 'duration', 'meeting_type', 'participants']
         
         labels = {
             'title': 'Meeting Title',
             'meeting_time': 'Date & Time',
             'duration': 'Duration',
             'meeting_type': 'Meeting Type',
+            'participants': 'Invite Participants',
         }
 
         widgets = {
@@ -39,10 +38,10 @@ class MeetingForm(forms.ModelForm):
                 'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
             }),
             'meeting_type': forms.RadioSelect(attrs={
-                'class': 'sr-only peer' # Class for the custom radio buttons in the template
+                'class': 'sr-only peer'
             }),
+            'participants': forms.CheckboxSelectMultiple(),
         }
-
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -73,3 +72,7 @@ class TaskForm(forms.ModelForm):
                 'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)

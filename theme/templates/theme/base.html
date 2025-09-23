@@ -43,7 +43,10 @@
                                         <p class="text-xs font-medium text-slate-400">{{ request.user.get_role_display }}</p>
                                     </div>
                                 </div>
-                                <a href="{% url 'logout' %}" title="Log Out" class="text-slate-400 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i></a>
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" title="Log Out" class="bg-transparent border-none text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-right-from-bracket"></i></button>
+                                </form>
                             </div>
                             {% else %}
                                 <a href="{% url 'login' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
@@ -86,7 +89,10 @@
                                 <p class="text-xs font-medium text-slate-400">{{ request.user.get_role_display }}</p>
                             </div>
                         </div>
-                        <a href="{% url 'logout' %}" title="Log Out" class="text-slate-400 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i></a>
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" title="Log Out" class="bg-transparent border-none text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-right-from-bracket"></i></button>
+                        </form>
                     </div>
                     {% else %}
                         <a href="{% url 'login' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
@@ -107,14 +113,12 @@
                 <header class="bg-white shadow-sm">
                     <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
                         <h1 class="text-2xl font-bold tracking-tight text-gray-900">{% block page_title %}Dashboard{% endblock %}</h1>
-                        {% if request.user.is_authenticated %}
-                            {% if request.user.role == 'ADMIN' or request.user.role == 'MANAGER' %}
-                            <div class="hidden sm:flex items-center space-x-4">
-                                <a href="{% url 'meeting_create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-colors">
-                                    <i class="fa-solid fa-plus mr-2"></i> New Meeting
-                                </a>
-                            </div>
-                            {% endif %}
+                        {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                        <div class="hidden sm:flex items-center space-x-4">
+                            <a href="{% url 'meeting_create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-colors">
+                                <i class="fa-solid fa-plus mr-2"></i> New Meeting
+                            </a>
+                        </div>
                         {% endif %}
                     </div>
                 </header>
@@ -136,17 +140,12 @@
                 <i class="fa-solid fa-tasks text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">My Tasks</span>
             </a>
             <div class="flex items-center justify-center">
-                {% if request.user.is_authenticated %}
-                    {% if request.user.role == 'ADMIN' or request.user.role == 'MANAGER' %}
-                    <a href="{% url 'meeting_create' %}" class="inline-flex items-center justify-center w-14 h-14 font-medium bg-indigo-600 rounded-full hover:bg-indigo-700 group focus:ring-4 focus:ring-blue-300 focus:outline-none -mt-6 border-4 border-white">
-                        <i class="fa-solid fa-plus text-white text-2xl"></i>
-                    </a>
-                    {% endif %}
+                {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                <a href="{% url 'meeting_create' %}" class="inline-flex items-center justify-center w-14 h-14 font-medium bg-indigo-600 rounded-full hover:bg-indigo-700 group focus:ring-4 focus:ring-blue-300 focus:outline-none -mt-6 border-4 border-white">
+                    <i class="fa-solid fa-plus text-white text-2xl"></i>
+                </a>
                 {% endif %}
             </div>
-            <a href="#" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
-                <i class="fa-regular fa-calendar text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Calendar</span>
-            </a>
             {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
             <a href="{% url 'management_dashboard' %}" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
                 <i class="fa-solid fa-users-gear text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Management</span>

@@ -1,5 +1,3 @@
-# core/views.py
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
@@ -11,26 +9,22 @@ from .models import Meeting, Task
 from accounts.models import User
 from .forms import MeetingForm, TaskForm
 
-# Helper function to check for privileged users (Management or Superadmin)
 def is_privileged_user(user):
     return user.is_authenticated and (user.is_superuser or user.role == 'MANAGEMENT')
 
-# =================================
-# Meeting & Dashboard Views
-# =================================
-
 @login_required
 def meeting_list(request):
-    all_meetings = Meeting.objects.all()
+    if is_privileged_user(request.user):
+        all_meetings = Meeting.objects.all()
+    else:
+        all_meetings = Meeting.objects.filter(participants=request.user)
     
-    # Calculate stats
     total_meetings_count = all_meetings.count()
     completed_meetings_count = all_meetings.filter(status=Meeting.MeetingStatus.COMPLETED).count()
     total_tasks_count = Task.objects.count()
     avg_duration_data = all_meetings.aggregate(avg_duration=Avg('duration'))
     avg_duration = avg_duration_data.get('avg_duration')
 
-    # Paginate the ordered list of meetings
     ordered_meetings = all_meetings.order_by('-meeting_time')
     paginator = Paginator(ordered_meetings, 10)
     page_number = request.GET.get('page')
@@ -48,20 +42,30 @@ def meeting_list(request):
 @login_required
 def meeting_detail(request, pk):
     meeting = get_object_or_404(Meeting, pk=pk)
+    is_privileged = is_privileged_user(request.user)
+
     if request.method == 'POST':
-        # Any authenticated user can add a task, but we can refine this later
-        form = TaskForm(request.POST)
+        # Pass the user to the form if they are not privileged
+        form = TaskForm(request.POST, user=request.user if not is_privileged else None)
         if form.is_valid():
             task = form.save(commit=False)
             task.meeting = meeting
-            task.owner = request.user
+            # If owner was not in the form, it's set automatically in the form's save method
+            if not is_privileged:
+                 task.owner = request.user
             task.save()
             return redirect('meeting_detail', pk=meeting.pk)
     else:
         form = TaskForm()
-    
-    is_privileged = is_privileged_user(request.user)
-    context = {'meeting': meeting, 'form': form, 'is_privileged': is_privileged}
+        # If user is not privileged, remove the owner field from the form
+        if not is_privileged:
+            form.fields.pop('owner')
+
+    context = {
+        'meeting': meeting,
+        'form': form,
+        'is_privileged': is_privileged,
+    }
     return render(request, 'core/meeting_detail.html', context)
 
 @login_required
@@ -70,7 +74,8 @@ def meeting_create(request):
     if request.method == 'POST':
         form = MeetingForm(request.POST)
         if form.is_valid():
-            form.save()
+            meeting = form.save()
+            meeting.participants.add(request.user)
             return redirect('meeting_list')
     else:
         form = MeetingForm()
@@ -97,10 +102,6 @@ def meeting_delete(request, pk):
     meeting.delete()
     return redirect('meeting_list')
 
-# =================================
-# Task & User-Specific Views
-# =================================
-
 @login_required
 def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk)
@@ -111,7 +112,9 @@ def task_update(request, pk):
             form.save()
             return redirect('meeting_detail', pk=task.meeting.pk)
     else:
-        form = TaskForm(instance=task)
+        form = TaskForm()
+        if not is_privileged_user(request.user):
+            form.fields.pop('owner')
     return render(request, 'core/task_update.html', {'form': form, 'task': task})
 
 @login_required
@@ -125,7 +128,7 @@ def task_delete(request, pk):
 
 @login_required
 def my_tasks(request):
-    all_user_tasks = Task.objects.filter(owner=request.user).order_by('due_date')
+    all_user_tasks = Task.objects.filter(owner=request.user).order_by('-created_at')
     incomplete_tasks = all_user_tasks.exclude(status=Task.StatusChoices.COMPLETED)
     completed_tasks = all_user_tasks.filter(status=Task.StatusChoices.COMPLETED)
     context = {'incomplete_tasks': incomplete_tasks, 'completed_tasks': completed_tasks}

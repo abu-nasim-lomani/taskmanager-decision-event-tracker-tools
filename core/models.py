@@ -20,8 +20,14 @@ class Meeting(models.Model):
     meeting_time = models.DateTimeField(default=timezone.now)
     duration = models.IntegerField(default=60, help_text="Duration in minutes")
     meeting_type = models.CharField(max_length=20, choices=MeetingType.choices, default=MeetingType.TEAM)
-    status = models.CharField(max_length=20, choices=MeetingStatus.choices, default=MeetingStatus.UPCOMING) # <-- এই ফিল্ডটি যোগ করা হয়েছে
+    status = models.CharField(max_length=20, choices=MeetingStatus.choices, default=MeetingStatus.UPCOMING)
     
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, 
+        related_name='meetings_participated', 
+        blank=True
+    ) # <-- এই নতুন ফিল্ডটি যোগ করা হয়েছে
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

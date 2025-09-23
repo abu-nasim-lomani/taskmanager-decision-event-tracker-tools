@@ -14,6 +14,7 @@
         </div>
         <div class="space-y-3">
             {% for task in meeting.tasks.all %}
+                {% if is_privileged or request.user == task.owner %}
                 <div class="flex items-start justify-between p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200">
                     <div class="flex-1 min-w-0">
                         <p class="font-medium text-gray-800 truncate">{{ task.title }}</p>
@@ -27,6 +28,7 @@
                         {% if task.priority == 'HIGH' %}<span class="hidden sm:inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-800"><i class="fa-solid fa-arrow-up mr-1"></i>High</span>{% elif task.priority == 'MEDIUM' %}<span class="hidden sm:inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800"><i class="fa-solid fa-minus mr-1"></i>Medium</span>{% else %}<span class="hidden sm:inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800"><i class="fa-solid fa-arrow-down mr-1"></i>Low</span>{% endif %}
                         {% if task.status == 'COMPLETED' %}<span class="items-center px-2.5 py-0.5 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800"><i class="fa-solid fa-check-circle mr-1"></i>Done</span>{% elif task.status == 'IN_PROGRESS' %}<span class="items-center px-2.5 py-0.5 inline-flex text-xs font-semibold rounded-full bg-blue-100 text-blue-800"><i class="fa-solid fa-spinner fa-spin mr-1"></i>In Progress</span>{% elif task.status == 'BLOCKED' %}<span class="items-center px-2.5 py-0.5 inline-flex text-xs font-semibold rounded-full bg-pink-100 text-pink-800"><i class="fa-solid fa-ban mr-1"></i>Blocked</span>{% else %}<span class="items-center px-2.5 py-0.5 inline-flex text-xs font-semibold rounded-full bg-gray-200 text-gray-800"><i class="fa-regular fa-clock mr-1"></i>Pending</span>{% endif %}
                         
+                        {% if is_privileged or request.user == task.owner %}
                         <a href="{% url 'task_update' task.pk %}" title="Edit Task" class="text-gray-400 hover:text-indigo-600"><i class="fa-solid fa-pencil"></i></a>
                         <form action="{% url 'task_delete' task.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete this task?');">
                             {% csrf_token %}
@@ -34,8 +36,10 @@
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </form>
+                        {% endif %}
                     </div>
                 </div>
+                {% endif %}
             {% empty %}
                 <div class="text-center py-8 px-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                     <i class="fa-solid fa-folder-open text-4xl text-gray-300 mb-3"></i>
@@ -47,45 +51,49 @@
     </div>
 
     <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
-            <i class="fa-solid fa-plus-circle mr-2 text-indigo-500"></i> Add a New Task
-        </h2>
-        
-        <form method="post" class="space-y-4">
-            {% csrf_token %}
+    <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+        <i class="fa-solid fa-plus-circle mr-2 text-indigo-500"></i> Add a New Task
+    </h2>
+    
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% for error in form.title.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+        </div>
+        <div>
+            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            {% if form.owner %}
             <div>
-                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.title.label }}</label>
-                {{ form.title }}
-                {% for error in form.title.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                <label for="{{ form.owner.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.owner.label }}</label>
+                {{ form.owner }}
+                {% for error in form.owner.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
             </div>
+            {% endif %}
+
             <div>
-                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.description.label }}</label>
-                {{ form.description }}
-                {% for error in form.description.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.due_date.label }}</label>
+                {{ form.due_date }}
+                {% for error in form.due_date.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="{{ form.owner.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.owner.label }}</label>
-                    {{ form.owner }}
-                    {% for error in form.owner.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
-                </div>
-                <div>
-                    <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.due_date.label }}</label>
-                    {{ form.due_date }}
-                    {% for error in form.due_date.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
-                </div>
-            </div>
-            <div>
-                <label for="{{ form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.priority.label }}</label>
-                {{ form.priority }}
-                {% for error in form.priority.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
-            </div>
-            <div class="pt-2 text-right">
-                <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <i class="fa-solid fa-plus-circle mr-2"></i> Create Task
-                </button>
-            </div>
-        </form>
-    </div>
+        </div>
+        <div>
+            <label for="{{ form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.priority.label }}</label>
+            {{ form.priority }}
+            {% for error in form.priority.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="pt-2 text-right">
+            <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fa-solid fa-plus-circle mr-2"></i> Create Task
+            </button>
+        </div>
+    </form>
+</div>
 </div>
 {% endblock %}
