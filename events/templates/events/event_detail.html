@@ -1,0 +1,49 @@
+{% extends 'theme/base.html' %}
+
+{% block title %}{{ event.title }}{% endblock %}
+{% block page_title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border">
+        <div class="border-b pb-4 mb-4">
+            <p class="text-sm text-gray-500">Description</p>
+            <p class="mt-1 text-gray-700">{{ event.description|linebreaks|default:"No description provided." }}</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+                <p class="text-gray-500">Start Time</p>
+                <p class="font-medium text-gray-800">{{ event.start_datetime|date:"F d, Y, P" }}</p>
+            </div>
+             <div>
+                <p class="text-gray-500">End Time</p>
+                <p class="font-medium text-gray-800">{{ event.end_datetime|date:"F d, Y, P"|default:"Not specified" }}</p>
+            </div>
+             <div>
+                <p class="text-gray-500">Created By</p>
+                <p class="font-medium text-gray-800">{{ event.created_by.username|capfirst }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Participants ({{ event.participants.count }})</h2>
+        <div class="space-y-3">
+            {% for participant in event.participants.all %}
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center mr-3">
+                        <span class="font-bold text-slate-600">{{ participant.username|first|upper }}</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">{{ participant.username|capfirst }}</p>
+                        <p class="text-xs text-gray-500">{{ participant.get_role_display }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-sm text-gray-500">No participants invited yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

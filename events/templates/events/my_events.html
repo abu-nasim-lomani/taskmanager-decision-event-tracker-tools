@@ -1,0 +1,60 @@
+{% extends 'theme/base.html' %}
+
+{% block title %}My Events{% endblock %}
+{% block page_title %}My Events & Invitations{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
+            <div class="text-2xl font-bold text-indigo-600">{{ total_invitations }}</div>
+            <div class="text-xs text-gray-500 mt-1">Total Invitations</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
+            <div class="text-2xl font-bold text-green-600">{{ accepted_count }}</div>
+            <div class="text-xs text-gray-500 mt-1">Accepted</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
+            <div class="text-2xl font-bold text-gray-600">{{ pending_count }}</div>
+            <div class="text-xs text-gray-500 mt-1">Pending</div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for invitation in invitations %}
+        <div class="group relative bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div class="absolute top-3 right-3 z-10">
+                {% if invitation.status == 'ACCEPTED' %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Accepted</span>
+                {% elif invitation.status == 'REJECTED' %}<span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">Declined</span>
+                {% else %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Pending</span>{% endif %}
+            </div>
+            
+            <div class="p-5">
+                <h3 class="text-lg font-bold truncate mb-2">{{ invitation.event.title }}</h3>
+                <div class="flex items-center space-x-2 text-gray-500 text-sm mb-4">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>{{ invitation.event.start_datetime|date:"M d, Y • g:i A" }}</span>
+                </div>
+                
+                {% if invitation.status == 'PENDING' %}
+                <div class="flex items-center space-x-2 mt-4 pt-4 border-t border-gray-100">
+                    <form action="{% url 'respond_to_invitation' invitation.pk 'accept' %}" method="post" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full bg-green-100 text-green-700 hover:bg-green-200 py-2 px-3 rounded-lg text-sm font-medium"><i class="fa-solid fa-check mr-1"></i> Accept</button>
+                    </form>
+                    <form action="{% url 'respond_to_invitation' invitation.pk 'decline' %}" method="post" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full bg-red-100 text-red-700 hover:bg-red-200 py-2 px-3 rounded-lg text-sm font-medium"><i class="fa-solid fa-times mr-1"></i> Decline</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="md:col-span-2 lg:col-span-3 text-center py-16">
+             <p class="text-gray-500">You haven't been invited to any events yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

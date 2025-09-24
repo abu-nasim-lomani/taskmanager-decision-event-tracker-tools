@@ -4,293 +4,46 @@
 {% block page_title %}Meetings Dashboard{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-    <!-- Total Meetings Card -->
-    <div class="group relative overflow-hidden bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-        <div class="absolute top-0 right-0 w-16 h-16 bg-blue-50 rounded-full -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-300"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Meetings</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ total_meetings_count }}</p>
-                </div>
-                <div class="rounded-lg bg-blue-500/20 p-2 group-hover:rotate-6 transition-transform duration-300">
-                    <i class="fa-solid fa-calendar-day text-lg text-blue-600"></i>
-                </div>
-            </div>
-            <div class="mt-3 pt-2 border-t border-gray-100">
-                <span class="inline-flex items-center text-xs text-blue-600">
-                    <i class="fa-solid fa-wave-pulse mr-1"></i>
-                    All meetings
-                </span>
-            </div>
-        </div>
+<div class="space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="group bg-white p-5 rounded-xl shadow-sm border hover:shadow-lg hover:-translate-y-1 transition-all duration-300"><p class="text-sm font-medium text-gray-500">Total Meetings</p><p class="text-3xl font-bold text-gray-900 mt-1">{{ meetings.paginator.count }}</p></div>
+        <div class="group bg-white p-5 rounded-xl shadow-sm border hover:shadow-lg hover:-translate-y-1 transition-all duration-300"><p class="text-sm font-medium text-gray-500">Completed</p><p class="text-3xl font-bold text-gray-900 mt-1">{{ completed_meetings_count }}</p></div>
+        <div class="group bg-white p-5 rounded-xl shadow-sm border hover:shadow-lg hover:-translate-y-1 transition-all duration-300"><p class="text-sm font-medium text-gray-500">Total Tasks</p><p class="text-3xl font-bold text-gray-900 mt-1">{{ total_tasks_count }}</p></div>
+        <div class="group bg-white p-5 rounded-xl shadow-sm border hover:shadow-lg hover:-translate-y-1 transition-all duration-300"><p class="text-sm font-medium text-gray-500">Avg. Duration</p><p class="text-3xl font-bold text-gray-900 mt-1">{% if avg_duration %}{{ avg_duration|floatformat:0 }} min{% else %}N/A{% endif %}</p></div>
     </div>
 
-    <!-- Completed Meetings Card -->
-    <div class="group relative overflow-hidden bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-        <div class="absolute top-0 right-0 w-16 h-16 bg-green-50 rounded-full -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-300"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Completed</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ completed_meetings_count }}</p>
-                </div>
-                <div class="rounded-lg bg-green-500/20 p-2 group-hover:rotate-6 transition-transform duration-300">
-                    <i class="fa-solid fa-check-circle text-lg text-green-600"></i>
-                </div>
-            </div>
-            <div class="mt-3 pt-2 border-t border-gray-100">
-                <span class="inline-flex items-center text-xs text-green-600">
-                    <i class="fa-solid fa-trophy mr-1"></i>
-                    {% if total_meetings_count > 0 %}
-                        {{ completed_meetings_count|floatformat:0 }}% success
-                    {% else %}0% success{% endif %}
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Total Tasks Card -->
-    <div class="group relative overflow-hidden bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-        <div class="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-full -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-300"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Tasks</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ total_tasks_count }}</p>
-                </div>
-                <div class="rounded-lg bg-amber-500/20 p-2 group-hover:rotate-6 transition-transform duration-300">
-                    <i class="fa-solid fa-tasks text-lg text-amber-600"></i>
-                </div>
-            </div>
-            <div class="mt-3 pt-2 border-t border-gray-100">
-                <span class="inline-flex items-center text-xs text-amber-600">
-                    <i class="fa-solid fa-bolt mr-1"></i>
-                    Active decisions
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Average Duration Card -->
-    <div class="group relative overflow-hidden bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-        <div class="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-full -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-300"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Avg. Duration</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">
-                        {% if avg_duration %}{{ avg_duration|floatformat:0 }} min{% else %}N/A{% endif %}
-                    </p>
-                </div>
-                <div class="rounded-lg bg-purple-500/20 p-2 group-hover:rotate-6 transition-transform duration-300">
-                    <i class="fa-solid fa-hourglass-half text-lg text-purple-600"></i>
-                </div>
-            </div>
-            <div class="mt-3 pt-2 border-t border-gray-100">
-                <span class="inline-flex items-center text-xs text-purple-600">
-                    <i class="fa-solid fa-gauge-high mr-1"></i>
-                    Meeting efficiency
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-
-        <!-- Meetings Section -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200/60 overflow-hidden">
-            <!-- Header -->
-            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100/30 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Recent Meetings</h3>
-                        <p class="text-sm text-gray-600 mt-1">Manage your meetings and tasks efficiently</p>
-                    </div>
-                    <a href="{% url 'meeting_create' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm">
-                        <i class="fa-solid fa-plus mr-2"></i> New Meeting
-                    </a>
-                </div>
-            </div>
-
-            <!-- Mobile Cards View (for phones) -->
-            <div class="block md:hidden">
+    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Meeting</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tasks</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
                 {% for meeting in meetings %}
-                <div class="border-b border-gray-200/60 last:border-b-0">
-                    <div class="p-4 hover:bg-gray-50/50 transition-colors duration-150">
-                        <!-- Header Row -->
-                        <div class="flex items-center justify-between mb-3">
-                            <h4 class="font-semibold text-gray-900 text-sm truncate">{{ meeting.title }}</h4>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                                {% if meeting.is_completed %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                <i class="fa-solid {% if meeting.is_completed %}fa-check-circle{% else %}fa-clock{% endif %} mr-1"></i>
-                                {% if meeting.is_completed %}Done{% else %}Pending{% endif %}
-                            </span>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <a href="{{ meeting.get_absolute_url }}" class="font-semibold text-gray-800 hover:text-primary-600">{{ meeting.title }}</a>
+                        <p class="text-sm text-gray-500">{{ meeting.meeting_time|date:"M d, Y" }}</p>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ meeting.tasks.count }}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full {% if meeting.status == 'COMPLETED' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">{{ meeting.get_status_display }}</span></td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end items-center space-x-3">
+                            <a href="{{ meeting.get_absolute_url }}" class="text-gray-400 hover:text-primary-600"><i class="fa-solid fa-eye"></i></a>
+                            {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                            <a href="{% url 'meeting_update' meeting.pk %}" class="text-gray-400 hover:text-primary-600"><i class="fa-solid fa-pen-to-square"></i></a>
+                            <form action="{% url 'meeting_delete' meeting.pk %}" method="post" onsubmit="return confirm('Are you sure?');">{% csrf_token %}<button type="submit" class="text-gray-400 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button></form>
+                            {% endif %}
                         </div>
-                        
-                        <!-- Details Row -->
-                        <div class="space-y-2">
-                            <div class="flex items-center text-sm text-gray-600">
-                                <i class="fa-solid fa-calendar mr-2 text-gray-400"></i>
-                                <span>{{ meeting.meeting_time|date:"M d, Y" }}</span>
-                            </div>
-                            <div class="flex items-center text-sm text-gray-600">
-                                <i class="fa-solid fa-clock mr-2 text-gray-400"></i>
-                                <span>{{ meeting.meeting_time|date:"g:i A" }}</span>
-                            </div>
-                            <div class="flex items-center text-sm text-gray-600">
-                                <i class="fa-solid fa-tasks mr-2 text-gray-400"></i>
-                                <span>{{ meeting.tasks.count }} tasks</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Actions Row -->
-                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex items-center space-x-3">
-                                <a href="{% url 'meeting_detail' meeting.pk %}" class="text-blue-600 hover:text-blue-900 text-sm font-medium flex items-center">
-                                    <i class="fa-solid fa-eye mr-1"></i> View
-                                </a>
-                                <a href="{% url 'meeting_update' meeting.pk %}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium flex items-center">
-                                    <i class="fa-solid fa-pen mr-1"></i> Edit
-                                </a>
-                            </div>
-                            <form action="{% url 'meeting_delete' meeting.pk %}" method="post" onsubmit="return confirm('Delete this meeting?');" class="inline">
-                                {% csrf_token %}
-                                <button type="submit" class="text-red-600 hover:text-red-900 text-sm font-medium flex items-center">
-                                    <i class="fa-solid fa-trash mr-1"></i> Delete
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="p-8 text-center">
-                    <i class="fa-solid fa-calendar-xmark text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No meetings found</h3>
-                    <p class="text-gray-500 mb-6">Create your first meeting to get started</p>
-                    <a href="{% url 'meeting_create' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm">
-                        <i class="fa-solid fa-plus mr-2"></i> Create Meeting
-                    </a>
-                </div>
+                    </td>
+                </tr>
                 {% endfor %}
-            </div>
-
-            <!-- Desktop & Tablet Table View (for md screens and larger) -->
-            <div class="hidden md:block">
-                <div class="w-full">
-                    <table class="w-full">
-                        <thead class="bg-gray-50/80">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Meeting Title</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Date & Time</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Tasks</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200/60">
-                            {% for meeting in meetings %}
-                            <tr class="hover:bg-gray-50/50 transition-colors duration-150">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                                            <i class="fa-solid fa-calendar text-blue-600"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900 truncate max-w-xs">{{ meeting.title }}</p>
-                                            <p class="text-xs text-gray-500 mt-1">Meeting</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-900 font-medium">{{ meeting.meeting_time|date:"M d, Y" }}</div>
-                                    <div class="text-sm text-gray-500">{{ meeting.meeting_time|date:"g:i A" }}</div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                        <i class="fa-solid fa-tasks mr-1"></i>
-                                        {{ meeting.tasks.count }} tasks
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
-                                        {% if meeting.is_completed %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                        <i class="fa-solid {% if meeting.is_completed %}fa-check-circle{% else %}fa-clock{% endif %} mr-1"></i>
-                                        {% if meeting.is_completed %}Completed{% else %}Pending{% endif %}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex items-center justify-end space-x-2">
-                                        <a href="{% url 'meeting_detail' meeting.pk %}" class="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors" title="View Details">
-                                            <i class="fa-solid fa-eye w-4 h-4"></i>
-                                        </a>
-                                        <a href="{% url 'meeting_update' meeting.pk %}" class="text-indigo-600 hover:text-indigo-900 p-2 rounded-lg hover:bg-indigo-50 transition-colors" title="Edit Meeting">
-                                            <i class="fa-solid fa-pen-to-square w-4 h-4"></i>
-                                        </a>
-                                        <form action="{% url 'meeting_delete' meeting.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete this meeting?');" class="inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-colors" title="Delete Meeting">
-                                                <i class="fa-solid fa-trash-can w-4 h-4"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center">
-                                    <div class="flex flex-col items-center justify-center">
-                                        <i class="fa-solid fa-calendar-xmark text-4xl text-gray-300 mb-4"></i>
-                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No meetings found</h3>
-                                        <p class="text-gray-500 mb-6">Get started by creating your first meeting.</p>
-                                        <a href="{% url 'meeting_create' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm">
-                                            <i class="fa-solid fa-plus mr-2"></i> Create Meeting
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            {% if meetings.has_other_pages %}
-            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-200">
-                <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0">
-                    <div class="text-sm text-gray-700">
-                        Showing <span class="font-semibold">{{ meetings.start_index }}</span> to 
-                        <span class="font-semibold">{{ meetings.end_index }}</span> of 
-                        <span class="font-semibold">{{ meetings.paginator.count }}</span> results
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        {% if meetings.has_previous %}
-                        <a href="?page={{ meetings.previous_page_number }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                            <i class="fa-solid fa-chevron-left mr-2"></i> Previous
-                        </a>
-                        {% endif %}
-                        
-                        <div class="flex items-center space-x-1">
-                            {% for i in meetings.paginator.page_range %}
-                                {% if meetings.number == i %}
-                                    <span class="inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg">{{ i }}</span>
-                                {% else %}
-                                    <a href="?page={{ i }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">{{ i }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        
-                        {% if meetings.has_next %}
-                        <a href="?page={{ meetings.next_page_number }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                            Next <i class="fa-solid fa-chevron-right ml-2"></i>
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
+            </tbody>
+        </table>
     </div>
-</div>
+    </div>
 {% endblock %}

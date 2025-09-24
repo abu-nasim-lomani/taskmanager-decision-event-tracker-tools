@@ -1,0 +1,101 @@
+/* Reusable component styles using Tailwind's @apply directive */
+.card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300;
+}
+
+.card-header {
+    @apply px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between;
+}
+
+.card-title {
+    @apply text-lg font-semibold text-gray-900;
+}
+
+.card-subtitle {
+    @apply text-sm text-gray-500 mt-1;
+}
+
+.card-footer {
+    @apply flex items-center justify-between pt-4 border-t border-gray-100;
+}
+
+.header-icon {
+    @apply w-10 h-10 rounded-lg flex items-center justify-center;
+}
+
+.avatar {
+    @apply w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg text-white font-semibold text-lg;
+}
+
+.nav-link {
+    @apply flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium;
+}
+
+.nav-link.active {
+    @apply bg-blue-50 text-blue-700 border border-blue-100;
+}
+
+.nav-link.active i {
+    @apply text-blue-600;
+}
+
+/* Form Input Styling */
+input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select {
+    @apply w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm;
+}
+
+.btn {
+    @apply px-6 py-2.5 rounded-lg text-sm font-medium flex items-center space-x-2 transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500;
+}
+
+.btn-dark {
+    @apply bg-gray-800 hover:bg-gray-900 text-white focus:ring-gray-500;
+}
+
+/* Message Banners */
+.message-banner {
+    @apply rounded-xl shadow-sm border p-4;
+}
+.message-banner.success {
+    @apply bg-green-50 border-green-200 text-green-800;
+}
+.message-banner.success .icon-wrapper {
+    @apply bg-green-100;
+}
+.message-banner.success .icon-wrapper i {
+    @apply text-green-600;
+}
+.message-banner.error {
+    @apply bg-red-50 border-red-200 text-red-800;
+}
+.message-banner.error .icon-wrapper {
+    @apply bg-red-100;
+}
+.message-banner.error .icon-wrapper i {
+    @apply text-red-600;
+}
+
+.message-banner .icon-wrapper {
+    @apply flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center;
+}
+.message-banner .close-button {
+    @apply text-gray-400 hover:text-gray-600;
+}
+
+/* Overview section styles */
+.overview-item {
+    @apply flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border border-gray-200;
+}
+.overview-icon {
+    @apply w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0;
+}
+.overview-title {
+    @apply text-sm font-medium text-gray-600;
+}
+.overview-data {
+    @apply text-lg font-semibold text-gray-900;
+}

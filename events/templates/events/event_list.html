@@ -1,31 +1,75 @@
 {% extends 'theme/base.html' %}
 
-{% block title %}All Events{% endblock %}
+{% block title %}Company Events{% endblock %}
 {% block page_title %}Company Events{% endblock %}
 
 {% block content %}
-<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-     <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-gray-800">Upcoming & Past Events</h2>
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">All Company Events</h1>
+            </div>
         {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
-        <a href="{% url 'event_create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
-            <i class="fa-solid fa-plus mr-2"></i> New Event
+        <a href="{% url 'event_create' %}" class="mt-4 lg:mt-0 inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm">
+            <i class="fa-solid fa-plus mr-2"></i> Create New Event
         </a>
         {% endif %}
     </div>
-    <div class="space-y-4">
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for event in events %}
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p class="font-semibold text-gray-800">{{ event.title }}</p>
-                <p class="text-sm text-gray-500 mt-1">
-                    <i class="fa-regular fa-calendar-alt mr-1"></i>
-                    Date: {{ event.start_date|date:"F d, Y" }}
-                    {% if event.end_date %} - {{ event.end_date|date:"F d, Y" }}{% endif %}
-                </p>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200/60 overflow-hidden group">
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-3">
+                    <a href="{% url 'event_detail' event.pk %}" class="group block">
+                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 line-clamp-2">{{ event.title }}</h3>
+                    </a>
+                    {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                    <div class="flex items-center space-x-2">
+                        <a href="{% url 'event_update' event.pk %}" class="text-gray-400 hover:text-gray-800" title="Edit Event"><i class="fa-solid fa-pencil"></i></a>
+                        <form action="{% url 'event_delete' event.pk %}" method="post" onsubmit="return confirm('Are you sure?');">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-400 hover:text-red-600" title="Delete Event"><i class="fa-solid fa-trash-can"></i></button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <i class="fa-regular fa-calendar-alt mr-2 text-indigo-500"></i>
+                    <span>{{ event.start_datetime|date:"F d, Y • g:i A" }}</span>
+                </div>
             </div>
+
+            <div class="px-6 pb-4 border-t border-gray-100">
+                <p class="text-xs text-gray-400 uppercase font-semibold mb-2 mt-4">Participants</p>
+                <div class="flex items-center">
+                    {% for participant in event.participants.all|slice:":5" %}
+                        <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center border-2 border-white ring-1 ring-slate-200 -ml-2">
+                            <span class="font-bold text-xs text-slate-600">{{ participant.username|first|upper }}</span>
+                        </div>
+                    {% empty %}
+                        <span class="text-xs text-gray-500">No participants invited.</span>
+                    {% endfor %}
+                    {% if event.participants.count > 5 %}
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border-2 border-white -ml-2">
+                            <span class="font-semibold text-xs text-slate-500">+{{ event.participants.count|add:"-5" }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
         {% empty %}
-            <p class="text-center text-gray-500 py-4">No events scheduled yet.</p>
+        <div class="col-span-full text-center py-12">
+            <h3 class="text-lg font-medium text-gray-900">No Events Scheduled</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating a new event.</p>
+        </div>
         {% endfor %}
     </div>
+
+    {% if events.has_other_pages %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-lg shadow-sm">
+       </div>
+    {% endif %}
 </div>
 {% endblock %}

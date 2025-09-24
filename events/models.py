@@ -1,3 +1,4 @@
+# events/models.py
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
@@ -25,8 +26,8 @@ class Event(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        # We will create this URL pattern in a future step
-        return reverse('event_detail', kwargs={'pk': self.pk})
+        # We will create this URL later
+        return reverse('event_list') # Placeholder
 
 class Invitation(models.Model):
     class StatusChoices(models.TextChoices):

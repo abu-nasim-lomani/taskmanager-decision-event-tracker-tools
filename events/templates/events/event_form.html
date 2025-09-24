@@ -1,44 +1,98 @@
 {% extends 'theme/base.html' %}
 
-{% block title %}Create New Event{% endblock %}
-{% block page_title %}Create a New Event{% endblock %}
+{% block title %}
+    {% if form.instance.pk %}Edit Event{% else %}Create New Event{% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% if form.instance.pk %}Edit Event: {{ form.instance.title }}{% else %}Create a New Event{% endif %}
+{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border">
-    <form method="post" class="space-y-4">
-        {% csrf_token %}
-        <div>
-            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.title.label }}</label>
-            {{ form.title }}
-        </div>
-        <div>
-            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.description.label }}</label>
-            {{ form.description }}
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div x-data="{ conflictModalOpen: {{ conflict_warning|yesno:'true,false' }} }">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border">
+        <form method="post" id="event-form" class="space-y-4">
+            {% csrf_token %}
+            
             <div>
-                <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700">Start Date</label>
-                {{ form.start_date }}
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% for error in form.title.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
             </div>
             <div>
-                <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700">End Date (Optional)</label>
-                {{ form.end_date }}
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% for error in form.description.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="{{ form.start_datetime.id_for_label }}" class="block text-sm font-medium text-gray-700">Start Date & Time</label>
+                    {{ form.start_datetime }}
+                    {% for error in form.start_datetime.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+                <div>
+                    <label for="{{ form.end_datetime.id_for_label }}" class="block text-sm font-medium text-gray-700">End Date & Time (Optional)</label>
+                    {{ form.end_datetime }}
+                    {% for error in form.end_datetime.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Participants</label>
+                <div class="max-h-48 overflow-y-auto bg-white border border-gray-300 rounded-lg p-3 space-y-2">
+                    {% for checkbox in form.participants %}
+                        <label for="{{ checkbox.id_for_label }}" class="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 cursor-pointer">
+                            {{ checkbox.tag }}
+                            <span class="text-sm font-medium text-gray-700">{{ checkbox.choice_label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                {% for error in form.participants.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+            </div>
+            
+            <div class="pt-4 flex justify-end gap-x-3">
+                <a href="{% url 'event_list' %}" class="inline-flex items-center justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                     {% if form.instance.pk %}Update Event{% else %}Check Availability & Create{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div x-show="conflictModalOpen" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
+        <div x-show="conflictModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div @click.away="conflictModalOpen = false" x-show="conflictModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10"><i class="fa-solid fa-exclamation-triangle text-yellow-600"></i></div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">Scheduling Conflict</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500">The following manager(s) are already busy:</p>
+                                    <ul class="list-disc list-inside mt-2 text-sm text-gray-600 font-medium">
+                                        {% for manager_name in conflicting_managers %}<li>{{ manager_name }}</li>{% endfor %}
+                                    </ul>
+                                    <p class="text-sm text-gray-500 mt-3">Do you still want to create this event?</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button type="button" @click="
+                            let form = document.getElementById('event-form');
+                            let hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = 'force_create';
+                            hiddenInput.value = 'true';
+                            form.appendChild(hiddenInput);
+                            form.submit();
+                        " class="w-full sm:w-auto inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Create Anyway</button>
+                        <button @click="conflictModalOpen = false" type="button" class="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 border hover:bg-gray-50">Cancel</button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Participants</label>
-            <div class="max-h-48 overflow-y-auto bg-white border border-gray-300 rounded-lg p-3 space-y-2">
-                {% for checkbox in form.participants %}
-                    <label for="{{ checkbox.id_for_label }}" class="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 cursor-pointer">
-                        {{ checkbox.tag }}
-                        <span class="text-sm font-medium text-gray-700">{{ checkbox.choice_label }}</span>
-                    </label>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="pt-2 text-right">
-            <button type="submit" class="py-2 px-4 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Create Event</button>
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}
