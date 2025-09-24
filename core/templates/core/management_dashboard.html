@@ -5,7 +5,12 @@
 
 {% block content %}
 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-    <h2 class="text-xl font-semibold mb-4 text-gray-800">Manager Task Overview</h2>
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">Manager Task Overview</h2>
+        <a href="{% url 'management_report' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            View Full Report &rarr;
+        </a>
+    </div>
 
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
@@ -19,10 +24,12 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for manager in managers %}
-                <tr>
+                <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">{{ manager.username|capfirst }}</div>
-                        <div class="text-sm text-gray-500">{{ manager.email }}</div>
+                        <a href="{% url 'manager_report' manager.id %}" class="hover:underline">
+                            <div class="text-sm font-medium text-indigo-600">{{ manager.username|capfirst }}</div>
+                            <div class="text-sm text-gray-500">{{ manager.email }}</div>
+                        </a>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">{{ manager.completed_tasks }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-semibold">{{ manager.incomplete_tasks }}</td>

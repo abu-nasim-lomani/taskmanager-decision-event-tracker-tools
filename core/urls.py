@@ -12,4 +12,6 @@ urlpatterns = [
     path('task/<int:pk>/delete/', views.task_delete, name='task_delete'),
     path('my-tasks/', views.my_tasks, name='my_tasks'),
     path('management-dashboard/', views.management_dashboard, name='management_dashboard'),
+    path('management-report/', views.management_report, name='management_report'), 
+    path('management-report/manager/<int:manager_id>/', views.management_report, name='manager_report'), 
 ]

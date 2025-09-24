@@ -152,3 +152,22 @@ def management_dashboard(request):
     ).order_by('username')
     context = {'managers': managers}
     return render(request, 'core/management_dashboard.html', context)
+
+@login_required
+def management_report(request, manager_id=None):
+    if not is_privileged_user(request.user):
+        raise PermissionDenied
+
+    meetings = Meeting.objects.all().order_by('-meeting_time')
+    selected_manager = None
+
+    if manager_id:
+        # Filter by a specific manager
+        meetings = meetings.filter(tasks__owner__id=manager_id).distinct()
+        selected_manager = get_object_or_404(User, id=manager_id)
+
+    context = {
+        'meetings': meetings,
+        'selected_manager': selected_manager,
+    }
+    return render(request, 'core/management_report.html', context)
