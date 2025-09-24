@@ -19,3 +19,6 @@
         .sidebar-item:hover {
             transform: translateX(4px);
         }
+        nav{
+            color: white !important;
+        }

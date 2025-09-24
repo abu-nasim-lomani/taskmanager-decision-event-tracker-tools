@@ -1,30 +1,128 @@
 {% extends 'theme/base.html' %}
 
-{% block title %}Log In{% endblock %}
+{% block title %}Log In - DecisionTracker{% endblock %}
 {% block page_title %}Log In{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md border">
-    <form method="post" class="space-y-6">
-        {% csrf_token %}
-
-        {% if form.errors %}
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-                <p>Your username and password didn't match. Please try again.</p>
-            </div>
-        {% endif %}
-
-        <div>
-            <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
-            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+<div class="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Sign in to your DecisionTracker account
+            </p>
         </div>
 
-        <div>
-            <label for="id_password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+        <!-- Login Form Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Error Messages -->
+                {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4 animate-pulse">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0 w-5 h-5 bg-red-100 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-exclamation text-red-600 text-xs"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-red-800">Invalid credentials</p>
+                            <p class="text-xs text-red-600 mt-1">Please check your username and password</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Username Field -->
+                <div class="space-y-2">
+                    <label for="id_username" class="block text-sm font-semibold text-gray-700 flex items-center">
+                        <i class="fa-solid fa-user mr-2 text-gray-500"></i>
+                        Username
+                    </label>
+                    <div class="relative">
+                        <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" 
+                               maxlength="150" required id="id_username" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 
+                                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                      transition-all duration-200 bg-white">
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="space-y-2">
+                    <label for="id_password" class="block text-sm font-semibold text-gray-700 flex items-center">
+                        <i class="fa-solid fa-lock mr-2 text-gray-500"></i>
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input type="password" name="password" autocomplete="current-password" required id="id_password" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 
+                                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                      transition-all duration-200 bg-white">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 
+                               text-white py-3 px-4 rounded-lg text-sm font-semibold flex items-center justify-center 
+                               transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>
+                    Sign In
+                </button>
+
+                <!-- Forgot Password -->
+                <div class="text-center">
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center">
+                        <i class="fa-solid fa-key mr-1"></i>
+                        Forgot your password?
+                    </a>
+                </div>
+            </form>
         </div>
 
-        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Log In</button>
-    </form>
+        
+
+        
+    </div>
 </div>
+
+<style>
+    /* Smooth focus transitions */
+    input:focus {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    
+    /* Loading animation for form submission */
+    button:active {
+        transform: scale(0.98);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add floating label effect
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('ring-2', 'ring-blue-100');
+        });
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('ring-2', 'ring-blue-100');
+        });
+    });
+    
+    // Add loading state to button
+    const form = document.querySelector('form');
+    const button = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function() {
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Signing In...';
+        button.disabled = true;
+        button.classList.remove('hover:scale-[1.02]');
+    });
+});
+</script>
 {% endblock %}

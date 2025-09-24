@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'core',
+    'events',
     'tailwind',
     'theme',
     'crispy_forms',
