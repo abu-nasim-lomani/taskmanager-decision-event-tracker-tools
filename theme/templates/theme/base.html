@@ -32,6 +32,15 @@
                                 <i class="fa-solid fa-users-gear mr-3 text-slate-400 w-6 text-center"></i> Management
                             </a>
                             {% endif %}
+
+
+                            
+                            {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                                {% else %}
+                                <a href="{% url 'profile' %}" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
+                                    <i class="fa-solid fa-gear text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Settings</span>
+                                </a>
+                            {% endif %}
                         </nav>
                          <div class="px-4 py-4 border-t border-slate-700 mt-auto">
                             {% if user.is_authenticated %}
@@ -77,6 +86,14 @@
                     <a href="{% url 'management_dashboard' %}" class="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700">
                         <i class="fa-solid fa-users-gear mr-3 text-slate-400 w-6 text-center"></i> Management
                     </a>
+                    {% endif %}
+
+                   
+                    {% if request.user.is_superuser or request.user.role == 'MANAGEMENT' %}
+                        {% else %}
+                        <a href="{% url 'profile' %}" class="mobile-nav-item inline-flex flex-col items-center justify-center px-5 border-t-2 border-transparent hover:bg-gray-50 group">
+                            <i class="fa-solid fa-gear text-gray-500 group-hover:text-indigo-600"></i><span class="text-xs text-gray-500 group-hover:text-indigo-600">Settings</span>
+                        </a>
                     {% endif %}
                 </nav>
                 <div class="px-4 py-4 border-t border-slate-700 mt-auto">

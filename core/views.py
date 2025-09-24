@@ -7,11 +7,13 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from .models import Meeting, Task
 from accounts.models import User
-from .forms import MeetingForm, TaskForm
+from .forms import MeetingForm, TaskCreateForm, TaskUpdateForm
 
+# Helper function
 def is_privileged_user(user):
     return user.is_authenticated and (user.is_superuser or user.role == 'MANAGEMENT')
 
+# Meeting & Dashboard Views
 @login_required
 def meeting_list(request):
     if is_privileged_user(request.user):
@@ -45,27 +47,21 @@ def meeting_detail(request, pk):
     is_privileged = is_privileged_user(request.user)
 
     if request.method == 'POST':
-        # Pass the user to the form if they are not privileged
-        form = TaskForm(request.POST, user=request.user if not is_privileged else None)
+        form = TaskCreateForm(request.POST, user=request.user)
         if form.is_valid():
             task = form.save(commit=False)
             task.meeting = meeting
-            # If owner was not in the form, it's set automatically in the form's save method
             if not is_privileged:
-                 task.owner = request.user
+                task.owner = request.user
             task.save()
             return redirect('meeting_detail', pk=meeting.pk)
     else:
-        form = TaskForm()
-        # If user is not privileged, remove the owner field from the form
+        form = TaskCreateForm()
         if not is_privileged:
-            form.fields.pop('owner')
+            if 'owner' in form.fields:
+                form.fields.pop('owner')
 
-    context = {
-        'meeting': meeting,
-        'form': form,
-        'is_privileged': is_privileged,
-    }
+    context = {'meeting': meeting, 'form': form, 'is_privileged': is_privileged}
     return render(request, 'core/meeting_detail.html', context)
 
 @login_required
@@ -102,20 +98,23 @@ def meeting_delete(request, pk):
     meeting.delete()
     return redirect('meeting_list')
 
+# Task & User-Specific Views
 @login_required
 def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk)
-    if not (is_privileged_user(request.user) or request.user == task.owner): raise PermissionDenied
+    if not (is_privileged_user(request.user) or request.user == task.owner):
+        raise PermissionDenied
+    
     if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
+        form = TaskUpdateForm(request.POST, instance=task, user=request.user)
         if form.is_valid():
             form.save()
-            return redirect('meeting_detail', pk=task.meeting.pk)
+            return redirect('my_tasks')
     else:
-        form = TaskForm()
-        if not is_privileged_user(request.user):
-            form.fields.pop('owner')
-    return render(request, 'core/task_update.html', {'form': form, 'task': task})
+        form = TaskUpdateForm(instance=task, user=request.user)
+    
+    context = {'form': form, 'task': task}
+    return render(request, 'core/task_update.html', context)
 
 @login_required
 @require_POST
@@ -128,10 +127,19 @@ def task_delete(request, pk):
 
 @login_required
 def my_tasks(request):
-    all_user_tasks = Task.objects.filter(owner=request.user).order_by('-created_at')
-    incomplete_tasks = all_user_tasks.exclude(status=Task.StatusChoices.COMPLETED)
-    completed_tasks = all_user_tasks.filter(status=Task.StatusChoices.COMPLETED)
-    context = {'incomplete_tasks': incomplete_tasks, 'completed_tasks': completed_tasks}
+    all_user_tasks = Task.objects.filter(owner=request.user)
+    
+    pending_tasks = all_user_tasks.filter(status=Task.StatusChoices.PENDING).order_by('due_date')
+    inprogress_tasks = all_user_tasks.filter(status=Task.StatusChoices.IN_PROGRESS).order_by('due_date')
+    blocked_tasks = all_user_tasks.filter(status=Task.StatusChoices.BLOCKED).order_by('due_date')
+    completed_tasks = all_user_tasks.filter(status=Task.StatusChoices.COMPLETED).order_by('-updated_at')
+
+    context = {
+        'pending_tasks': pending_tasks,
+        'inprogress_tasks': inprogress_tasks,
+        'blocked_tasks': blocked_tasks,
+        'completed_tasks': completed_tasks,
+    }
     return render(request, 'core/my_tasks.html', context)
 
 @login_required

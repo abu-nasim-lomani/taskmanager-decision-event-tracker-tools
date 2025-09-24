@@ -5,11 +5,11 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        ADMIN = "ADMIN", "Admin"
+        MANAGEMENT = "MANAGEMENT", "Management"
         MANAGER = "MANAGER", "Manager"
-        TEAM_MEMBER = "TEAM_MEMBER", "Team Member"
 
-    role = models.CharField(max_length=50, choices=Role.choices, default=Role.ADMIN)
+    role = models.CharField(max_length=50, choices=Role.choices, default=Role.MANAGER)
     
+    # Add these new fields
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     department = models.CharField(max_length=100, blank=True, null=True)
