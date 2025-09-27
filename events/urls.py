@@ -1,4 +1,3 @@
-# events/urls.py
 from django.urls import path
 from . import views
 
@@ -10,5 +9,4 @@ urlpatterns = [
     path('<int:pk>/edit/', views.event_update, name='event_update'), 
     path('<int:pk>/delete/', views.event_delete, name='event_delete'),
     path('invitation/<int:invitation_pk>/respond/<str:response>/', views.respond_to_invitation, name='respond_to_invitation'),
-    path('my-events/json/', views.my_events_json, name='my_events_json'),
 ]

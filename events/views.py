@@ -20,19 +20,21 @@ def event_create(request):
     if not is_privileged_user(request.user):
         raise PermissionDenied
     
-    context = {}
     if request.method == 'POST':
         form = EventForm(request.POST)
         if form.is_valid():
             
+            # If the user confirms creation from the modal
             if 'force_create' in request.POST:
                 event = form.save(commit=False)
                 event.created_by = request.user
                 event.save()
-                form.save_m2m()
-                messages.success(request, f"Event '{event.title}' was created successfully.")
+                form.save_m2m() # Save participants
+                event.participants.add(request.user) # Add creator as a participant
+                messages.success(request, f"Event '{event.title}' was created despite conflicts.")
                 return redirect('event_list')
 
+            # Initial submission: Check for conflicts
             participants = form.cleaned_data.get('participants')
             start_time = form.cleaned_data.get('start_datetime')
             end_time = form.cleaned_data.get('end_datetime') or start_time
@@ -40,7 +42,6 @@ def event_create(request):
             conflicting_managers = []
             if participants:
                 for person in participants:
-                    # Check for overlapping events for each participant
                     conflicts = Event.objects.filter(
                         participants=person,
                         start_datetime__lt=end_time,
@@ -50,27 +51,28 @@ def event_create(request):
                         conflicting_managers.append(person.username)
             
             if conflicting_managers:
-                context.update({
+                # Conflicts found, re-render the form with a warning modal
+                context = {
                     'form': form,
                     'conflict_warning': True,
                     'conflicting_managers': conflicting_managers,
-                })
+                }
                 return render(request, 'events/event_form.html', context)
             else:
+                # No conflicts, create the event directly
                 event = form.save(commit=False)
                 event.created_by = request.user
                 event.save()
                 form.save_m2m()
+                event.participants.add(request.user) # Add creator as a participant
                 messages.success(request, f"Event '{event.title}' was created successfully.")
                 return redirect('event_list')
         else:
             messages.error(request, "Please correct the errors below.")
-            context['form'] = form
     else:
         form = EventForm()
-        context['form'] = form
     
-    return render(request, 'events/event_form.html', context)
+    return render(request, 'events/event_form.html', {'form': form})
 
 @login_required
 def event_detail(request, pk):
@@ -87,7 +89,34 @@ def event_update(request, pk):
     if request.method == 'POST':
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
+            # Similar conflict check as in event_create
+            if 'force_create' not in request.POST:
+                participants = form.cleaned_data.get('participants')
+                start_time = form.cleaned_data.get('start_datetime')
+                end_time = form.cleaned_data.get('end_datetime') or start_time
+                
+                conflicting_managers = []
+                if participants:
+                    for person in participants:
+                        conflicts = Event.objects.filter(
+                            participants=person,
+                            start_datetime__lt=end_time,
+                            end_datetime__gt=start_time
+                        ).exclude(pk=event.pk).exists()
+                        if conflicts:
+                            conflicting_managers.append(person.username)
+
+                if conflicting_managers:
+                    context = {
+                        'form': form,
+                        'event': event,
+                        'conflict_warning': True,
+                        'conflicting_managers': conflicting_managers,
+                    }
+                    return render(request, 'events/event_form.html', context)
+            
             form.save()
+            messages.success(request, f"Event '{event.title}' was updated successfully.")
             return redirect('event_list')
     else:
         form = EventForm(instance=event)
@@ -99,20 +128,16 @@ def event_update(request, pk):
 def event_delete(request, pk):
     if not is_privileged_user(request.user):
         raise PermissionDenied
-        
     event = get_object_or_404(Event, pk=pk)
     event.delete()
+    messages.success(request, f"Event '{event.title}' has been deleted.")
     return redirect('event_list')
-
 
 @login_required
 def my_events(request):
     invitations = Invitation.objects.filter(invitee=request.user).select_related('event')
-    
-    # Calculate stats
     pending_invitations = invitations.filter(status=Invitation.StatusChoices.PENDING).count()
     accepted_invitations = invitations.filter(status=Invitation.StatusChoices.ACCEPTED).count()
-
     context = {
         'invitations': invitations.order_by('event__start_datetime'),
         'pending_count': pending_invitations,
@@ -138,14 +163,14 @@ def respond_to_invitation(request, invitation_pk, response):
 
 @login_required
 def my_events_json(request):
-    invitations = Invitation.objects.filter(invitee=request.user).select_related('event')
+    invitations = Invitation.objects.filter(invitee=request.user, status=Invitation.StatusChoices.ACCEPTED).select_related('event')
     events_data = []
     for invitation in invitations:
+        event = invitation.event
         events_data.append({
-            "title": invitation.event.title,
-            "start": invitation.event.start_datetime.isoformat(),
-            "end": invitation.event.end_datetime.isoformat() if invitation.event.end_datetime else None,
-            # We can add a URL to the detail page later
-            # "url": reverse('event_detail', args=[invitation.event.pk]) 
+            "title": event.title,
+            "start": event.start_datetime.isoformat(),
+            "end": event.end_datetime.isoformat() if event.end_datetime else None,
         })
     return JsonResponse(events_data, safe=False)
+

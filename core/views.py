@@ -7,8 +7,10 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from .models import Meeting, Task
 from accounts.models import User
-from .forms import MeetingForm, TaskCreateForm, TaskUpdateForm
 from .utils import is_privileged_user
+from django.contrib import messages
+from .forms import MeetingCreateForm, MeetingUpdateForm, TaskCreateForm, TaskUpdateForm
+import datetime
 
 @login_required
 def meeting_list(request):
@@ -17,9 +19,16 @@ def meeting_list(request):
     else:
         all_meetings = Meeting.objects.filter(participants=request.user).distinct()
 
-    # Get upcoming meetings
     now = timezone.now()
+    
+    # Separate meetings into upcoming and past
     upcoming_meetings = all_meetings.filter(meeting_time__gte=now).order_by('meeting_time')
+    past_meetings = all_meetings.filter(meeting_time__lt=now).order_by('-meeting_time')
+
+    # Paginate ONLY the past meetings
+    paginator = Paginator(past_meetings, 10)
+    page_number = request.GET.get('page')
+    past_meetings_page = paginator.get_page(page_number)
 
     # Calculate stats
     total_meetings_count = all_meetings.count()
@@ -28,15 +37,9 @@ def meeting_list(request):
     avg_duration_data = all_meetings.aggregate(avg_duration=Avg('duration'))
     avg_duration = avg_duration_data.get('avg_duration')
 
-    # Paginate the past meetings
-    past_meetings = all_meetings.filter(meeting_time__lt=now).order_by('-meeting_time')
-    paginator = Paginator(past_meetings, 5) # Show 5 past meetings per page
-    page_number = request.GET.get('page')
-    meetings_page = paginator.get_page(page_number)
-
     context = {
         'upcoming_meetings': upcoming_meetings,
-        'meetings': meetings_page,
+        'meetings': past_meetings_page, # This now contains only PAST meetings
         'total_meetings_count': total_meetings_count,
         'completed_meetings_count': completed_meetings_count,
         'total_tasks_count': total_tasks_count,
@@ -69,28 +72,49 @@ def meeting_detail(request, pk):
 
 @login_required
 def meeting_create(request):
-    if not is_privileged_user(request.user): raise PermissionDenied
+    if not is_privileged_user(request.user):
+        raise PermissionDenied
     if request.method == 'POST':
-        form = MeetingForm(request.POST)
+        form = MeetingCreateForm(request.POST)
         if form.is_valid():
-            meeting = form.save()
+            meeting = form.save(commit=False)
+            # Combine date and time
+            date = form.cleaned_data.get("meeting_date")
+            time = form.cleaned_data.get("meeting_start_time")
+            meeting.meeting_time = datetime.datetime.combine(date, time)
+            meeting.save()
+            form.save_m2m()  # Save participants
             meeting.participants.add(request.user)
+            messages.success(request, f"Meeting '{meeting.title}' created successfully.")
             return redirect('meeting_list')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
-        form = MeetingForm()
+        form = MeetingCreateForm()
     return render(request, 'core/meeting_form.html', {'form': form})
+
 
 @login_required
 def meeting_update(request, pk):
-    if not is_privileged_user(request.user): raise PermissionDenied
+    if not is_privileged_user(request.user):
+        raise PermissionDenied
     meeting = get_object_or_404(Meeting, pk=pk)
     if request.method == 'POST':
-        form = MeetingForm(request.POST, instance=meeting)
+        form = MeetingUpdateForm(request.POST, instance=meeting)
         if form.is_valid():
-            form.save()
+            updated_meeting = form.save(commit=False)
+            # Combine date and time
+            date = form.cleaned_data.get("meeting_date")
+            time = form.cleaned_data.get("meeting_start_time")
+            updated_meeting.meeting_time = datetime.datetime.combine(date, time)
+            updated_meeting.save()
+            form.save_m2m()
+            messages.success(request, f"Meeting '{updated_meeting.title}' updated successfully.")
             return redirect('meeting_list')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
-        form = MeetingForm(instance=meeting)
+        form = MeetingUpdateForm(instance=meeting)
     return render(request, 'core/meeting_form.html', {'form': form, 'meeting': meeting})
 
 @login_required

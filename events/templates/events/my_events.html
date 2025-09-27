@@ -4,7 +4,8 @@
 {% block page_title %}My Events & Invitations{% endblock %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-8 mb-[50px]">
+    <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
             <div class="text-2xl font-bold text-indigo-600">{{ total_invitations }}</div>
@@ -20,13 +21,19 @@
         </div>
     </div>
     
+    <!-- Events Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for invitation in invitations %}
-        <div class="group relative bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <div class="group relative bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300">
+            <!-- Status Badge -->
             <div class="absolute top-3 right-3 z-10">
-                {% if invitation.status == 'ACCEPTED' %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Accepted</span>
-                {% elif invitation.status == 'REJECTED' %}<span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">Declined</span>
-                {% else %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Pending</span>{% endif %}
+                {% if invitation.status == 'ACCEPTED' %}
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Accepted</span>
+                {% elif invitation.status == 'REJECTED' %}
+                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">Declined</span>
+                {% else %}
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Pending</span>
+                {% endif %}
             </div>
             
             <div class="p-5">
@@ -36,6 +43,7 @@
                     <span>{{ invitation.event.start_datetime|date:"M d, Y • g:i A" }}</span>
                 </div>
                 
+                <!-- Action Buttons -->
                 {% if invitation.status == 'PENDING' %}
                 <div class="flex items-center space-x-2 mt-4 pt-4 border-t border-gray-100">
                     <form action="{% url 'respond_to_invitation' invitation.pk 'accept' %}" method="post" class="w-full">

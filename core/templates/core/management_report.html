@@ -10,49 +10,58 @@
 
 {% block page_title %}
     {% if selected_manager %}
-        Task Report: <span class="text-indigo-600">{{ selected_manager.username|capfirst }}</span>
+        Task Report: <span class="text-primary-600">{{ selected_manager.username|capfirst }}</span>
     {% else %}
         All Tasks Report
     {% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6 mb-[50px]">
     {% for meeting in meetings %}
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-semibold text-gray-800 border-b pb-3 mb-4">
-                {{ meeting.title }} <span class="text-sm text-gray-500 font-normal">- {{ meeting.meeting_time|date:"F d, Y" }}</span>
+        {% if meeting.tasks.exists %}
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200/60">
+            <h2 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3 mb-4">
+                {{ meeting.title }}
+                <span class="text-sm text-gray-500 font-normal">- {{ meeting.meeting_time|date:"F d, Y" }}</span>
             </h2>
             
-            <table class="min-w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Title</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for task in meeting.tasks.all %}
-                        {% if not selected_manager or task.owner == selected_manager %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
                         <tr>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-800">{{ task.title }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ task.owner.username|capfirst|default:"N/A" }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                {% if task.status == 'COMPLETED' %}
-                                    <span class="font-semibold text-green-600">{{ task.get_status_display }}</span>
-                                {% else %}
-                                    <span class="font-semibold text-red-600">{{ task.get_status_display }}</span>
-                                {% endif %}
-                            </td>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Title</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for task in meeting.tasks.all %}
+                            {% if not selected_manager or task.owner == selected_manager %}
+                            <tr>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-800">{{ task.title }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ task.owner.username|capfirst|default:"N/A" }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if task.status == 'COMPLETED' %} bg-green-100 text-green-800 
+                                        {% elif task.status == 'IN_PROGRESS' %} bg-blue-100 text-blue-800
+                                        {% elif task.status == 'BLOCKED' %} bg-pink-100 text-pink-800
+                                        {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                                        {{ task.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+        {% endif %}
     {% empty %}
-        <p class="text-center text-gray-500">No relevant meetings or tasks found.</p>
+        <div class="bg-white p-12 rounded-xl shadow-sm border text-center">
+            <p class="text-gray-500">No relevant meetings or tasks found.</p>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}
